@@ -3,16 +3,18 @@ import {
   getModelForClass,
   modelOptions,
   Severity,
+  Ref,
 } from '@typegoose/typegoose';
-import { ObjectId } from 'mongodb';
+import mongoose from 'mongoose';
 import { Schema } from 'mongoose';
+import { Namespace } from './namespace.model';
 
 @modelOptions({
   schemaOptions: { collection: 'Errors', timestamps: true },
   options: { allowMixed: Severity.ALLOW },
 })
-class Errors {
-  public _id: ObjectId;
+export class Errors {
+  public _id: mongoose.Types.ObjectId;
 
   @prop({ type: Number, required: true })
   public statusCode: number;
@@ -35,8 +37,14 @@ class Errors {
   @prop({ type: Boolean })
   public resolved: boolean;
 
-  public createdAt?: Date;
-  public updatedAt?: Date;
+  @prop({ ref: () => Namespace, type: mongoose.Types.ObjectId })
+  public namespaces: Ref<Namespace>[];
+
+  @prop({ type: Date, default: Date.now })
+  public createdAt: Date;
+
+  @prop({ type: Date, default: Date.now })
+  public updatedAt: Date;
 }
 
 export const ErrorModel = getModelForClass(Errors);

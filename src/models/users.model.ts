@@ -1,9 +1,15 @@
-import { prop, getModelForClass, modelOptions } from '@typegoose/typegoose';
-import { ObjectId } from 'mongoose';
+import {
+  prop,
+  getModelForClass,
+  modelOptions,
+  Ref,
+} from '@typegoose/typegoose';
+import mongoose from 'mongoose';
+import { Namespace } from './namespace.model';
 
 @modelOptions({ schemaOptions: { collection: 'users', timestamps: true } })
-class User {
-  public _id: ObjectId;
+export class User {
+  public _id: mongoose.Types.ObjectId;
 
   @prop({ type: String })
   public email?: string;
@@ -16,6 +22,9 @@ class User {
 
   @prop({ type: String, unique: true, sparse: true })
   public githubId?: string;
+
+  @prop({ ref: () => Namespace, type: mongoose.Types.ObjectId })
+  public namespaces: Ref<Namespace>[];
 
   @prop({ type: Date, default: Date.now })
   public createdAt?: Date;
