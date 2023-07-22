@@ -5,6 +5,7 @@ import { HttpException } from '@/exceptions/httpException';
 import { ShortUser, User } from '@interfaces/users.interface';
 import { UserModel } from '@models/users.model';
 import { ObjectId } from 'mongoose';
+import { ObjectId as toObjectId } from 'mongodb';
 import {
   generateAccessToken,
   generateRefreshToken,
@@ -15,7 +16,8 @@ import { TokenData } from '@/interfaces/auth.interface';
 @Service()
 export class UserService {
   public async findUserById(userId: string): Promise<User> {
-    const findUser: User = await UserModel.findOne({ _id: userId });
+    const uid = new toObjectId(userId);
+    const findUser: User = await UserModel.findOne({ _id: uid });
     if (!findUser) throw new HttpException(409, "User doesn't exist");
 
     return findUser;
@@ -79,7 +81,8 @@ export class UserService {
   }
 
   public async deleteUser(userId: string): Promise<User> {
-    const deleteUserById: User = await UserModel.findByIdAndDelete(userId);
+    const uid = new toObjectId(userId);
+    const deleteUserById: User = await UserModel.findByIdAndDelete(uid);
     if (!deleteUserById) throw new HttpException(409, "User doesn't exist");
 
     return deleteUserById;
