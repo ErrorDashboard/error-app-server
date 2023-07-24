@@ -2,6 +2,7 @@ import { ACCESS_SECRET_KEY, REFRESH_SECRET_KEY } from '@config';
 import { User } from '@interfaces/users.interface';
 import { DataStoredInToken, TokenData } from '@interfaces/auth.interface';
 import { sign, verify } from 'jsonwebtoken';
+import { type CookieOptions } from 'express';
 
 export const generateAccessToken = (user: User): TokenData => {
   const dataStoredInToken: DataStoredInToken = { _id: user._id };
@@ -23,8 +24,19 @@ export const generateRefreshToken = (user: User): TokenData => {
   };
 };
 
-export const createCookie = (tokenData: TokenData): string => {
-  return `Authorization=${tokenData.token}; HttpOnly; Path=/; Max-Age=${tokenData.expiresIn};`;
+export const createCookie = (
+  tokenData: TokenData,
+  tokenHeader: string,
+): { name: string; value: string; options: CookieOptions } => {
+  return {
+    name: tokenHeader,
+    value: tokenData.token,
+    options: {
+      httpOnly: true,
+      path: '/',
+      maxAge: tokenData.expiresIn * 1000,
+    },
+  };
 };
 
 export const verifyRefreshToken = (token: string): DataStoredInToken | null => {

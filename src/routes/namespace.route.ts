@@ -34,5 +34,10 @@ export class NamespaceRoute implements Routes {
       AuthMiddleware,
       this.namespaceController.deleteNamespaceById,
     );
+
+    // Get (PATCH) new ClientId
+    // Get (PATCH) new Client Secret
+    // Get (GET) namespace by namespace ID
+    // Update (PATCH) single namespace
   }
 }

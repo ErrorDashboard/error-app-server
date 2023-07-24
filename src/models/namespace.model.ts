@@ -21,17 +21,17 @@ export class Namespace {
   @prop({ type: Boolean })
   public active: boolean;
 
-  @prop({ ref: 'User', type: mongoose.Schema.Types.ObjectId })
-  public users: Ref<User>[];
-
-  @prop({ ref: 'Errors', type: mongoose.Schema.Types.ObjectId })
-  public errorRecords: Ref<Errors>[];
-
   @prop({ type: String, default: () => uuidv4() })
   public clientId: string;
 
   @prop({ type: String, default: () => crypto.randomBytes(32).toString('hex') })
   public clientSecret: string;
+
+  @prop({ ref: 'User', type: mongoose.Schema.Types.ObjectId })
+  public users: Ref<User>[];
+
+  @prop({ ref: 'Errors', type: mongoose.Schema.Types.ObjectId })
+  public errorRecords: Ref<Errors>[];
 
   @prop({ type: Date, default: Date.now })
   public createdAt: Date;
