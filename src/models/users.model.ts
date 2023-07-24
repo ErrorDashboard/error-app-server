@@ -7,10 +7,8 @@ import {
 import mongoose from 'mongoose';
 import { Namespace } from './namespace.model';
 
-@modelOptions({ schemaOptions: { collection: 'users', timestamps: true } })
+@modelOptions({ schemaOptions: { collection: 'Users', timestamps: true } })
 export class User {
-  public _id: mongoose.Types.ObjectId;
-
   @prop({ type: String })
   public email?: string;
 
@@ -23,7 +21,7 @@ export class User {
   @prop({ type: String, unique: true, sparse: true })
   public githubId?: string;
 
-  @prop({ ref: () => Namespace, type: mongoose.Types.ObjectId })
+  @prop({ ref: 'Namespace', type: mongoose.Schema.Types.ObjectId })
   public namespaces: Ref<Namespace>[];
 
   @prop({ type: Date, default: Date.now })

@@ -5,13 +5,13 @@ import {
   Ref,
 } from '@typegoose/typegoose';
 import mongoose from 'mongoose';
+import crypto from 'crypto';
+import { v4 as uuidv4 } from 'uuid';
 import { User } from './users.model';
 import { Errors } from './errors.model';
 
-@modelOptions({ schemaOptions: { collection: 'namespaces', timestamps: true } })
+@modelOptions({ schemaOptions: { collection: 'Namespaces', timestamps: true } })
 export class Namespace {
-  public _id: mongoose.Types.ObjectId;
-
   @prop({ type: String })
   public serviceName: string;
 
@@ -21,11 +21,17 @@ export class Namespace {
   @prop({ type: Boolean })
   public active: boolean;
 
-  @prop({ ref: () => User, type: mongoose.Types.ObjectId })
+  @prop({ ref: 'User', type: mongoose.Schema.Types.ObjectId })
   public users: Ref<User>[];
 
-  @prop({ ref: () => Errors, type: mongoose.Types.ObjectId })
-  public errors: Ref<Errors>[];
+  @prop({ ref: 'Errors', type: mongoose.Schema.Types.ObjectId })
+  public errorRecords: Ref<Errors>[];
+
+  @prop({ type: String, default: () => uuidv4() })
+  public clientId: string;
+
+  @prop({ type: String, default: () => crypto.randomBytes(32).toString('hex') })
+  public clientSecret: string;
 
   @prop({ type: Date, default: Date.now })
   public createdAt: Date;

@@ -2,20 +2,23 @@ import {
   prop,
   getModelForClass,
   modelOptions,
-  Severity,
   Ref,
 } from '@typegoose/typegoose';
 import mongoose from 'mongoose';
-import { Schema } from 'mongoose';
 import { Namespace } from './namespace.model';
+
+class Component {
+  @prop({ required: true })
+  public path: string;
+
+  @prop({ required: true })
+  public line: number;
+}
 
 @modelOptions({
   schemaOptions: { collection: 'Errors', timestamps: true },
-  options: { allowMixed: Severity.ALLOW },
 })
 export class Errors {
-  public _id: mongoose.Types.ObjectId;
-
   @prop({ type: Number, required: true })
   public statusCode: number;
 
@@ -24,12 +27,11 @@ export class Errors {
 
   @prop({
     required: true,
-    type: Schema.Types.Mixed,
   })
-  public component: { path: string; line: number };
+  public component: Component;
 
   @prop({ type: String })
-  public userAffected: string;
+  public userAffected?: string;
 
   @prop({ type: String, required: true })
   public stackTrace: string;
@@ -37,7 +39,7 @@ export class Errors {
   @prop({ type: Boolean })
   public resolved: boolean;
 
-  @prop({ ref: () => Namespace, type: mongoose.Types.ObjectId })
+  @prop({ ref: 'Namespace', type: mongoose.Schema.Types.ObjectId })
   public namespaces: Ref<Namespace>[];
 
   @prop({ type: Date, default: Date.now })
