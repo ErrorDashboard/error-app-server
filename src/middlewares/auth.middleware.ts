@@ -4,6 +4,7 @@ import { ACCESS_SECRET_KEY } from '@config';
 import { HttpException } from '@/exceptions/httpException';
 import { RequestWithUser } from '@interfaces/auth.interface';
 import { UserModel } from '@models/users.model';
+import { User } from '@/interfaces/users.interface';
 
 interface JwtPayload {
   _id: string;
@@ -27,7 +28,7 @@ export const AuthMiddleware = async (
 
     if (authorization) {
       const result = verify(authorization, ACCESS_SECRET_KEY) as JwtPayload;
-      const findUser = await UserModel.findById(result._id);
+      const findUser: User = (await UserModel.findById(result._id)).toObject();
 
       if (findUser) {
         req.user = findUser;

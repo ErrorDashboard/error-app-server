@@ -5,25 +5,25 @@ import { HttpException } from '@/exceptions/httpException';
 import { ShortUser, User } from '@interfaces/users.interface';
 import { UserModel } from '@models/users.model';
 import { ObjectId } from 'mongoose';
-import {
-  generateAccessToken,
-  generateRefreshToken,
-  createCookie,
-} from '@/utils/authTokens';
+import { ObjectId as toObjectId } from 'mongodb';
+import { generateAccessToken, generateRefreshToken } from '@/utils/authTokens';
 import { TokenData } from '@/interfaces/auth.interface';
 
 @Service()
 export class UserService {
   public async findUserById(userId: string): Promise<User> {
-    const findUser: User = await UserModel.findOne({ _id: userId });
+    const uid = new toObjectId(userId);
+    const findUser: User = await UserModel.findOne({ _id: uid });
     if (!findUser) throw new HttpException(409, "User doesn't exist");
 
     return findUser;
   }
 
-  public async signup(
-    userData: User,
-  ): Promise<{ accessToken: TokenData; cookie: string; user: ShortUser }> {
+  public async signup(userData: User): Promise<{
+    accessToken: TokenData;
+    refreshToken: TokenData;
+    user: ShortUser;
+  }> {
     const findUser: User = await UserModel.findOne({ email: userData.email });
     if (findUser)
       throw new HttpException(
@@ -32,22 +32,23 @@ export class UserService {
       );
 
     const hashedPassword = await hash(userData.password, 10);
-    const createUserData: User = await UserModel.create({
-      ...userData,
-      password: hashedPassword,
-    });
+    const createUserData: User = (
+      await UserModel.create({
+        ...userData,
+        password: hashedPassword,
+      })
+    ).toObject();
 
     const userResponseData = {
       _id: createUserData._id,
       email: createUserData.email,
     };
-    const accessTokenData = generateAccessToken(createUserData);
+    const accessToken = generateAccessToken(createUserData);
     const refreshToken = generateRefreshToken(createUserData);
-    const cookie = createCookie(refreshToken);
 
     return {
-      accessToken: accessTokenData,
-      cookie,
+      accessToken,
+      refreshToken,
       user: userResponseData,
     };
   }
@@ -79,7 +80,8 @@ export class UserService {
   }
 
   public async deleteUser(userId: string): Promise<User> {
-    const deleteUserById: User = await UserModel.findByIdAndDelete(userId);
+    const uid = new toObjectId(userId);
+    const deleteUserById: User = await UserModel.findByIdAndDelete(uid);
     if (!deleteUserById) throw new HttpException(409, "User doesn't exist");
 
     return deleteUserById;

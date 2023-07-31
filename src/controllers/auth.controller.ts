@@ -15,12 +15,16 @@ export class AuthController {
       const { accessToken, refreshToken, user } = await this.auth.login(
         userData,
       );
-      const refreshCookie = createCookie(refreshToken);
 
-      res.cookie('refresh', refreshCookie, {
-        httpOnly: true,
-        secure: SECURE_COOKIE,
-      });
+      const accessCookie = createCookie(accessToken, 'Authorization');
+      res.cookie(accessCookie.name, accessCookie.value, accessCookie.options);
+
+      const refreshCookie = createCookie(refreshToken, 'refresh-token');
+      res.cookie(
+        refreshCookie.name,
+        refreshCookie.value,
+        refreshCookie.options,
+      );
 
       res.status(200).json({
         user: user,
@@ -75,9 +79,10 @@ export class AuthController {
     try {
       const user = req.user as User;
       const accessToken = generateAccessToken(user);
-      const accessCookie = createCookie(accessToken);
+      const accessCookie = createCookie(accessToken, 'Authorization');
 
-      res.cookie(accessCookie, { httpOnly: true });
+      res.cookie(accessCookie.name, accessCookie.value, accessCookie.options);
+
       res.redirect(
         `http://${process.env.CLIENT_URL}:${process.env.CLIENT_PORT}/`,
       );
@@ -94,9 +99,10 @@ export class AuthController {
     try {
       const user = req.user as User;
       const accessToken = generateAccessToken(user);
-      const accessCookie = createCookie(accessToken);
+      const accessCookie = createCookie(accessToken, 'Authorization');
 
-      res.cookie(accessCookie, { httpOnly: true });
+      res.cookie(accessCookie.name, accessCookie.value, accessCookie.options);
+
       res.redirect(
         `http://${process.env.CLIENT_URL}:${process.env.CLIENT_PORT}/`,
       );

@@ -2,10 +2,10 @@ import { NextFunction, Request, Response } from 'express';
 import { Container } from 'typedi';
 import { User } from '@interfaces/users.interface';
 import { UserService } from '@services/users.service';
-import { ObjectId } from 'mongoose';
-import { SECURE_COOKIE } from '@/config';
+import { type ObjectId } from 'mongoose';
 import { RequestWithUser } from '@/interfaces/auth.interface';
 import { generateAccessToken } from '@/utils/authTokens';
+import { createCookie } from '@/utils/authTokens';
 
 export class UserController {
   public user = Container.get(UserService);
@@ -18,7 +18,9 @@ export class UserController {
     try {
       const user = req.user;
       const accessToken = generateAccessToken(user);
-      res.status(200).json({ user, accessToken, message: 'Successful Login' });
+      res
+        .status(200)
+        .json({ user, accessToken, message: 'User Info Retrieved' });
     } catch (error) {
       next(error);
     }
@@ -42,12 +44,24 @@ export class UserController {
   public signUp = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userData: User = req.body;
-      const { accessToken, cookie, user } = await this.user.signup(userData);
+      const { accessToken, refreshToken, user } = await this.user.signup(
+        userData,
+      );
 
-      res.cookie('refresh-token', cookie, {
-        httpOnly: true,
-        secure: SECURE_COOKIE,
-      });
+      const {
+        name: accessCookieName,
+        value: accessCookieValue,
+        options: accessCookieOptions,
+      } = createCookie(accessToken, 'Authorization');
+      res.cookie(accessCookieName, accessCookieValue, accessCookieOptions);
+
+      const {
+        name: refreshCookieName,
+        value: refreshCookieValue,
+        options: refreshCookieOptions,
+      } = createCookie(refreshToken, 'refresh-token');
+      res.cookie(refreshCookieName, refreshCookieValue, refreshCookieOptions);
+
       res.status(200).json({
         user: user,
         accessToken: accessToken,
