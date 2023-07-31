@@ -6,11 +6,7 @@ import { ShortUser, User } from '@interfaces/users.interface';
 import { UserModel } from '@models/users.model';
 import { ObjectId } from 'mongoose';
 import { ObjectId as toObjectId } from 'mongodb';
-import {
-  generateAccessToken,
-  generateRefreshToken,
-  createCookie,
-} from '@/utils/authTokens';
+import { generateAccessToken, generateRefreshToken } from '@/utils/authTokens';
 import { TokenData } from '@/interfaces/auth.interface';
 
 @Service()
