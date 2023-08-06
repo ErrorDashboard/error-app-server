@@ -37,7 +37,7 @@
     "swagger-jsdoc": "^6.2.1",
     "swagger-ui-express": "^4.6.3",
     "typedi": "^0.10.0",
-    "winston": "^3.8.1",
+    "winston": "^3.10.0",
     "winston-daily-rotate-file": "^4.7.1",
     "yamljs": "^0.3.0"
   },
