@@ -15,6 +15,7 @@ export class ErrorRoute implements Routes {
   }
 
   private initializeRoutes() {
+    // Create error instance
     this.router.post(
       `${this.path}`,
       ValidationMiddleware(CreateErrorDto),

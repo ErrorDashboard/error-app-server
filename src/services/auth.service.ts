@@ -7,11 +7,7 @@ import { DataStoredInToken, TokenData } from '@interfaces/auth.interface';
 import { ShortUser, User } from '@interfaces/users.interface';
 import { UserModel } from '@models/users.model';
 import { BaseUserType } from '@/types/users.types';
-import {
-  generateAccessToken,
-  generateRefreshToken,
-  createCookie,
-} from '@/utils/authTokens';
+import { generateAccessToken, generateRefreshToken } from '@/utils/authTokens';
 
 @Service()
 export class AuthService {
@@ -22,7 +18,9 @@ export class AuthService {
   }> {
     const findUser: User = await UserModel.findOne({
       email: userData.email,
-    }).select('+password');
+    })
+      .select('+password')
+      .lean();
 
     if (!findUser)
       throw new HttpException(
@@ -41,12 +39,12 @@ export class AuthService {
       _id: findUser._id,
       email: findUser.email,
     };
-    const accessTokenData = generateAccessToken(findUser);
-    const refreshTokenData = generateRefreshToken(findUser);
+    const accessToken = generateAccessToken(findUser);
+    const refreshToken = generateRefreshToken(findUser);
 
     return {
-      accessToken: accessTokenData,
-      refreshToken: refreshTokenData,
+      accessToken,
+      refreshToken,
       user: userResponseData,
     };
   }
@@ -67,22 +65,20 @@ export class AuthService {
 
   public async refreshAccessToken(
     refreshToken: string,
-  ): Promise<{ accessToken: string; cookie: string }> {
+  ): Promise<{ accessToken: string }> {
     const dataStoredInToken = verify(
       refreshToken,
       REFRESH_SECRET_KEY,
     ) as DataStoredInToken;
 
-    const findUser = await UserModel.findById(dataStoredInToken._id);
+    const findUser = await UserModel.findById(dataStoredInToken._id).toObject();
 
     if (!findUser) {
       throw new HttpException(401, 'Refresh token is not valid');
     }
 
     const accessTokenData = generateAccessToken(findUser);
-    const newRefreshToken = generateRefreshToken(findUser);
-    const cookie = createCookie(newRefreshToken);
 
-    return { accessToken: accessTokenData.token, cookie };
+    return { accessToken: accessTokenData.token };
   }
 }
